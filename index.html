@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>LeanCloud Demo</title>
+</head>
+<body>
+<button id="logout" hidden>out</button>
+<form action="" name="signIn">
+	<input type="text" name="username" placeholder="用户名">
+	<input type="email" name="email" placeholder="邮箱">
+	<input type="password" name="password" placeholder="密码">
+	<input type="submit" value="注册">
+</form>
+<form action="" name="login">
+	<input type="text" name="username" placeholder="用户名">
+	<input type="email" name="email" placeholder="邮箱">
+	<input type="password" name="password" placeholder="密码">
+	<input type="submit" value="登录">
+</form>
+<script src='./node_modules/leancloud-storage/dist/av.js'></script>
+<script>
+var APP_ID = 'IzwF2dyzNozanxr5t0FABSPP-gzGzoHsz';
+var APP_KEY = '3WpRv9suyld3lpaLn4K6Vx9B';
+AV.init({
+  appId: APP_ID,
+  appKey: APP_KEY
+});
+// var TestObject = AV.Object.ext end('TestObject');//TestObject存在哪张表
+// var testObject = new TestObject();
+// console.log(testObject)
+// testObject.save({
+//   words: 'Hello World!'   //请求内容
+// }).then(function(object) {
+//   alert('LeanCloud Rocks!');
+// })
+
+ var currentUser = AV.User.current();//已登录
+  if (currentUser) {
+    alert('hello'+currentUser.attributes.username)
+    logout.removeAttribute('hidden');
+  }
+  else {
+     //currentUser 为空时，可打开用户注册界面…
+  }
+let signInForm = document.querySelector('form[name=signIn]')
+//退出
+logout.onclick=()=>{
+  AV.User.logOut();
+  window.location.reload();
+}
+signInForm.addEventListener('submit',(e)=>{
+	e.preventDefault();
+	    var  user = new AV.User();// 新建 AVUser 对象实例
+	    console.log(user)
+        user.setUsername(signInForm.username.value);// 设置用户名
+        user.setPassword(signInForm.password.value);// 设置密码
+        user.setEmail(signInForm.email.value);// 设置邮箱
+        user.signUp().then(function(loginedUser){
+        	console.log(loginedUser);
+        },function(error){
+        	console.log(error)
+        })
+}) 
+let loginForm=document.querySelector('form[name=login]');
+loginForm.onsubmit=(e)=>{
+	e.preventDefault();
+	let username = loginForm.username.value;
+	let password = loginForm.password.value;
+	 AV.User.logIn(username, password).then(function (loginedUser) {
+	    console.log(loginedUser);
+	    location.reload();
+	  }, function (error) {
+	  	if(error.code == 210){
+	  		alert('用户名和密码不匹配')
+	  	}else if(error.code=211){
+	  		alert('用户名不存在')
+	  	}
+	  });
+}
+</script> 
+</body>
+</html>
